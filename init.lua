@@ -137,7 +137,13 @@ HooFSM.Transition = {
 
 	check = function(self) 
 		for _, condition in ipairs(self.conditions) do
-			if condition:check() then
+			local fulfilled = false
+			if condition.t then
+				fulfilled = condition.check(condition.t)
+			else
+				fulfilled = condition:check()
+			end
+			if fulfilled then
 				return true
 			end
 		end
@@ -181,6 +187,12 @@ setmetatable(HooFSM.Transition, HooFSM.MetaTransition)
 
 -- Defines a condition to be met for state transition
 -- self:check
-HooFSM.Condition = {}
+HooFSM.Condition = function(table, conditionCheck)
+	local newCondition = {}
+	newCondition.t = table
+	newCondition.check = conditionCheck
+
+	return newCondition
+end
 
 return HooFSM
