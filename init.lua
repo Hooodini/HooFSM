@@ -16,25 +16,31 @@ HooFSM.debug = function(...)
 end
 
 HooFSM.MetaStateMachine = {
-	__index = function(t, k) if t.activeState then return t.activeState[k] end end;
-
     __call = function(self, states, initialState)
         local newStateMachine = {}
         newStateMachine.states = states or {}
         newStateMachine.activeState = initialState or {transitions={}}
         setmetatable(newStateMachine, HooFSM.StateMachine.Mt)
-        newStateMachine.__call = self.update
+        newStateMachine.__call = self.updateStateMachine
         return newStateMachine
     end;
 }
 
 HooFSM.StateMachine = {
 	Mt = {
-		__index = function(t, k) return HooFSM.StateMachine[k] end;
-        __call = function(t, k, ...) t:update(...) end
+		__index = function(t, k) 
+			if HooFSM.StateMachine[k] then 
+				return HooFSM.StateMachine[k] 
+			elseif t.activeState then
+				return t.activeState[k]
+			end
+		end;
+        __call = function(t, ...) t:updateStateMachine(...) end
 	};
 
-	update = function(self, ...)
+	-- If a transition condition is met, call :onExit(newState, ...) on the previous state 
+	-- and :onEnter(previousState, ...) on the new one.
+	updateStateMachine = function(self, ...)
 		for _, transition in ipairs(self.activeState.transitions) do
 			if transition:check() then
 				self.activeState:onExit(transition.target, ...)
@@ -187,7 +193,7 @@ setmetatable(HooFSM.Transition, HooFSM.MetaTransition)
 
 -- Defines a condition to be met for state transition
 -- self:check
-HooFSM.Condition = function(table, conditionCheck)
+HooFSM.Condition = function(conditionCheck, table)
 	local newCondition = {}
 	newCondition.t = table
 	newCondition.check = conditionCheck
