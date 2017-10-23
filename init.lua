@@ -51,9 +51,18 @@ HooFSM.StateMachine = {
 		end
 	end;
 
-	addState = function(self, newState)
+	addState = function(self, newState, setActiveState)
+		setActiveState = setActiveState or false
 		if newState then
+			if #self.states == 0 then
+				setActiveState = true
+			end
+
 			table.insert(self.states, newState)
+
+			if setActiveState then
+				self.activeState = newState
+			end
 		else
 			HooFSM.debug("[!] HooFSM.StateMachine:addState() error! No newState supplied!")
 		end
@@ -149,12 +158,12 @@ HooFSM.Transition = {
 			else
 				fulfilled = condition:check()
 			end
-			if fulfilled then
-				return true
+			if not fulfilled then
+				return false
 			end
 		end
 
-		return false
+		return true
 	end;
 
 	addCondition = function(self, newCondition, index)
