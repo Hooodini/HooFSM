@@ -110,4 +110,17 @@ describe('HooFSM', function()
         assert.are.equal(c1, true)
         assert.are.equal(c2, true)
     end)
+
+    it('Condition(f, t) works with or without table', function()
+        condition = HooFSM.Condition(getC)
+        assert.are.equal(condition:check(), false)
+        c = true 
+        assert.are.equal(condition:check(), true)
+
+        local condi = {getC1 = getC1}
+        condition1 = HooFSM.Condition(condi.getC1, condi)
+        assert.are.equal(condition1:check(), false)
+        c1 = true
+        assert.are.equal(condition1:check(), true)
+    end)
 end)
