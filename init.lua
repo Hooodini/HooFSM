@@ -11,6 +11,8 @@ HooFSM.debug = function(...)
 				errorString = errorString .. tostring(entry) .. "\t"
 				error(errorString, 2)
 			end
+		else
+			print("[!] HooFSM.debug() error! Invalid debug mode! 'print' or 'error' expected. Got " .. HooFSM.debugMode)
 		end
 	end
 end
@@ -22,6 +24,11 @@ HooFSM.MetaStateMachine = {
         newStateMachine.activeState = initialState or {transitions={}}
         setmetatable(newStateMachine, HooFSM.StateMachine.Mt)
         newStateMachine.__call = self.updateStateMachine
+
+        if #newStateMachine.states == 0 and initialState then
+        	table.insert(newStateMachine.states, initialState)
+        end
+
         return newStateMachine
     end;
 }
@@ -66,6 +73,8 @@ HooFSM.StateMachine = {
 		else
 			HooFSM.debug("[!] HooFSM.StateMachine:addState() error! No newState supplied!")
 		end
+
+		return self
 	end;
 
 	setActiveState = function(self, newState)
@@ -86,6 +95,10 @@ HooFSM.StateMachine = {
 		else
 			HooFSM.debug("[!] HooFSM.StateMachine:setActiveState() error! No newState supplied!")
 		end
+	end;
+
+	getActiveState = function(self)
+		return self.activeState
 	end;
 }
 setmetatable(HooFSM.StateMachine, HooFSM.MetaStateMachine)
@@ -116,11 +129,12 @@ HooFSM.State = {
 		else
 			HooFSM.debug("[!] HooFSM.State.addTransition() error! No newTransition of type 'table'!")
 		end
+
+		return self
 	end;
 
 	onEnter = function() end;
 	onExit = function() end;
-	onUpdate = function() end;
 }
 setmetatable(HooFSM.State, HooFSM.MetaState)
 
@@ -135,7 +149,13 @@ HooFSM.MetaTransition = {
 		local newTransition = {}
 		setmetatable(newTransition, HooFSM.Transition.Mt)
 		newTransition.target = target
-		newTransition.conditions = conditions or { {check = HooFSM.Transition.defaultCheck} }
+		if conditions then
+			for k, v in ipairs(conditions) do
+				HooFSM.Transition.addCondition(newTransition, v)
+			end
+		else
+			newTransition.conditions = { {check = HooFSM.Transition.defaultCheck} }
+		end
 
 		return newTransition
 	end;
@@ -196,6 +216,8 @@ HooFSM.Transition = {
 		else
 			HooFSM.debug("[!] HooFSM.Transition:addCondition() error! No newCondition supplied!")
 		end
+
+		return self
 	end;
 }
 setmetatable(HooFSM.Transition, HooFSM.MetaTransition)
