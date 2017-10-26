@@ -123,4 +123,19 @@ describe('HooFSM', function()
         c1 = true
         assert.are.equal(condition1:check(), true)
     end)
+
+    it('Querying arbitrary values or calling arbitrary functions on the fsm will call return / call this key in the active state.', function()
+        state.num = 1
+        state.update = function(self) self.num = self.num + 1 end
+        fsm:addState(state)
+        assert.are.equal(fsm.num, 1)
+        fsm:update()
+        assert.are.equal(fsm.num, 2)
+    end)
+
+    it('Assigning arbitrary things to the fsm will insert those keys in the active state', function()
+        fsm:addState(state)
+        fsm.num = 1
+        assert.are.equal(state.num, 1)
+    end)
 end)

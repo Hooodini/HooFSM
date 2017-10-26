@@ -42,7 +42,8 @@ HooFSM.StateMachine = {
 				return t.activeState[k]
 			end
 		end;
-        __call = function(t, ...) t:updateStateMachine(...) end
+        __call = function(t, ...) t:updateStateMachine(...) end;
+        __newindex = function(t, k, v) t.activeState[k] = v end;
 	};
 
 	-- If a transition condition is met, call :onExit(newState, ...) on the previous state 
