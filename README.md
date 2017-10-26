@@ -29,18 +29,13 @@ As you can see in the above example. There are two variables in HooFSM.
 
 ## Using the active state
 
-(To be tested... probably broken...)
-
-You can use the state machine instance to access or call any values or functions in the active state.
+You can use the state machine instance to access, insert or call any values or functions in the active state.
 Example:
 ```lua
-StateMachine:update(dt)
-print(StateMachine.someVar)
+StateMachine:update(dt) -- Calls update on the active state, unless update is a function defined by StateMachine.
+print(StateMachine.someVar) -- Returns someVar from the active state, unless someVar is a variable of StateMachine.
+StateMachine.newVar = 42 -- Assigns newVar to the active state. 
 ```
-This will call "update" with the parameter dt on the active state. 
-And retrieve someVar.
-
-Keep in mind that setting a variable will set that variable in StateMachine! Not in the active state! (Probably to be fixed in the future)
 
 ## API
 
@@ -79,6 +74,10 @@ The state can only be reached if a transition from the active state towards it e
 - **newActiveState** (State) - Sets a new state as active state. 
 
 This function sets a state as the new active state. If the state is not yet in the list of states, it will be added.
+
+#### StateMachine:getActiveState()
+
+Returns the currently active state. 
 
 ### HooFSM.State
 
